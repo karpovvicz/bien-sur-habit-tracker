@@ -2,8 +2,8 @@
 
 import { useState, useEffect, useMemo } from "react";
 import { type TrackerState, type DayRecord } from "@/lib/types";
-import { getTrackerState, setTrackerState } from "@/lib/storage";
-import { getToday, formatDate, parseDate } from "@/lib/dates";
+import { getTrackerState, saveDayRecord } from "@/lib/storage";
+import { getToday, formatDate } from "@/lib/dates";
 
 export function useTracker() {
   const [state, setState] = useState<TrackerState>({
@@ -11,20 +11,21 @@ export function useTracker() {
     commitment: "my daily commitment",
   });
   const [mounted, setMounted] = useState(false);
+  const [loading, setLoading] = useState(true);
 
+  // Load state from database on mount
   useEffect(() => {
-    const loadedState = getTrackerState();
-    setState(loadedState);
-    setMounted(true);
+    async function loadState() {
+      setLoading(true);
+      const loadedState = await getTrackerState();
+      setState(loadedState);
+      setMounted(true);
+      setLoading(false);
+    }
+    loadState();
   }, []);
 
-  useEffect(() => {
-    if (mounted) {
-      setTrackerState(state);
-    }
-  }, [state, mounted]);
-
-  const checkInToday = () => {
+  const checkInToday = async () => {
     const today = getToday();
     const now = new Date().toISOString();
 
@@ -34,6 +35,7 @@ export function useTracker() {
       completedAt: now,
     };
 
+    // Optimistic update
     setState((prev) => ({
       ...prev,
       records: {
@@ -41,6 +43,9 @@ export function useTracker() {
         [today]: newRecord,
       },
     }));
+
+    // Save to database
+    await saveDayRecord(newRecord);
   };
 
   const currentStreak = useMemo(() => {
@@ -80,6 +85,7 @@ export function useTracker() {
   return {
     state,
     mounted,
+    loading,
     checkInToday,
     currentStreak,
     isTodayComplete,
