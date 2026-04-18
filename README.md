@@ -24,6 +24,8 @@ The interface includes a streak counter that displays your current consecutive d
 * Next.js API Routes for server endpoints
 
 **Key Features**
+* User authentication with email verification (powered by Clerk)
+* Multi-user support - each user has their own isolated tracker
 * Dark mode support with system preference detection
 * Optimistic UI updates for instant feedback
 * Type-safe database operations
@@ -52,13 +54,17 @@ npm install
 
 3. Set up your environment variables
 
-Create a `.env` file in the root directory:
+Create a `.env.local` file in the root directory:
 
 ```
 DATABASE_URL="postgresql://user:password@localhost:5432/biensr"
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_your_key_here
+CLERK_SECRET_KEY=sk_test_your_key_here
 ```
 
 Replace the connection string with your actual PostgreSQL credentials.
+
+For Clerk authentication keys, see **[CLERK_SETUP.md](CLERK_SETUP.md)** for detailed setup instructions.
 
 4. Initialize the database
 

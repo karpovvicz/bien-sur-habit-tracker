@@ -7,6 +7,7 @@ import { StreakDisplay } from "@/components/streak-display";
 import { CalendarGrid } from "@/components/calendar-grid";
 import { MonthNav } from "@/components/month-nav";
 import { isSameMonth } from "@/lib/dates";
+import { UserButton } from "@clerk/nextjs";
 
 export default function Home() {
   const { checkInToday, currentStreak, isTodayComplete, getDayRecord, mounted } = useTracker();
@@ -43,9 +44,12 @@ export default function Home() {
   return (
     <main className="min-h-screen px-6 py-8 md:px-12 md:py-12">
       <div className="mx-auto max-w-md">
-        <h1 className="mb-8 text-sm font-medium uppercase tracking-[0.2em]">
-          bien sûr
-        </h1>
+        <div className="mb-8 flex items-center justify-between">
+          <h1 className="text-sm font-medium uppercase tracking-[0.2em]">
+            bien sûr
+          </h1>
+          <UserButton afterSignOutUrl="/sign-in" />
+        </div>
 
         <div className="mb-8 flex flex-col items-center gap-8">
           <TodayAction isComplete={isTodayComplete} onCheckIn={checkInToday} />

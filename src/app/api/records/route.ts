@@ -1,9 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { auth } from "@clerk/nextjs/server";
 
 export async function GET() {
   try {
+    const { userId } = await auth();
+
+    if (!userId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const records = await prisma.dayRecord.findMany({
+      where: {
+        userId,
+      },
       orderBy: {
         date: "desc",
       },
@@ -31,6 +41,12 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
+    const { userId } = await auth();
+
+    if (!userId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const body = await request.json();
     const { date, completed, completedAt } = body;
 
@@ -39,12 +55,18 @@ export async function POST(request: NextRequest) {
     }
 
     const record = await prisma.dayRecord.upsert({
-      where: { date },
+      where: {
+        userId_date: {
+          userId,
+          date,
+        },
+      },
       update: {
         completed,
         completedAt: completedAt ? new Date(completedAt) : null,
       },
       create: {
+        userId,
         date,
         completed,
         completedAt: completedAt ? new Date(completedAt) : null,

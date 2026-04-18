@@ -1,15 +1,24 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { auth } from "@clerk/nextjs/server";
 
 export async function GET() {
   try {
-    // For single user mode, we'll just get the first settings record
-    let settings = await prisma.settings.findFirst();
+    const { userId } = await auth();
+
+    if (!userId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    let settings = await prisma.settings.findUnique({
+      where: { userId },
+    });
 
     // If no settings exist, create default settings
     if (!settings) {
       settings = await prisma.settings.create({
         data: {
+          userId,
           commitment: "",
         },
       });
@@ -24,22 +33,23 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
+    const { userId } = await auth();
+
+    if (!userId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const body = await request.json();
     const { commitment } = body;
 
-    // For single user mode, update or create the first settings record
-    let settings = await prisma.settings.findFirst();
-
-    if (settings) {
-      settings = await prisma.settings.update({
-        where: { id: settings.id },
-        data: { commitment },
-      });
-    } else {
-      settings = await prisma.settings.create({
-        data: { commitment },
-      });
-    }
+    const settings = await prisma.settings.upsert({
+      where: { userId },
+      update: { commitment },
+      create: {
+        userId,
+        commitment,
+      },
+    });
 
     return NextResponse.json({ commitment: settings.commitment });
   } catch (error) {

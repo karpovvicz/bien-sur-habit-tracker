@@ -21,6 +21,7 @@
   },
   "homepage": "https://github.com/karpovvicz/bien-s-r#readme",
   "dependencies": {
+    "@clerk/nextjs": "^7.2.3",
     "@prisma/adapter-pg": "^7.5.0",
     "@prisma/client": "^7.5.0",
     "class-variance-authority": "^0.7.1",
