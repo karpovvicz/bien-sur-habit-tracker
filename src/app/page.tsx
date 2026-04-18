@@ -48,7 +48,7 @@ export default function Home() {
           <h1 className="text-sm font-medium uppercase tracking-[0.2em]">
             bien sûr
           </h1>
-          <UserButton afterSignOutUrl="/sign-in" />
+          <UserButton />
         </div>
 
         <div className="mb-8 flex flex-col items-center gap-8">
