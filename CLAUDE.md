@@ -43,8 +43,8 @@ npx prisma generate           # Regenerate Prisma Client after schema changes
 
 ### Database Layer
 - **Prisma ORM** with PostgreSQL adapter using `pg` connection pool
-- Custom Prisma Client output: `src/generated/prisma/client`
 - Uses Prisma 7 with `@prisma/adapter-pg` for PostgreSQL connection pooling
+- Standard Prisma Client from `@prisma/client`
 - Global singleton pattern in `src/lib/prisma.ts` to prevent connection exhaustion
 - Two main models:
   - `DayRecord`: Daily completions with `userId`, `date` (YYYY-MM-DD), `completed`, `completedAt`
@@ -119,10 +119,11 @@ await saveDayRecord(newRecord);
 ```
 
 ### Prisma Client Generation
-The Prisma Client is generated to a custom location: `src/generated/prisma/client`. After schema changes:
+The Prisma Client uses the standard output location. After schema changes:
 1. Run `npx prisma generate` to regenerate the client
-2. Import from `@/generated/prisma/client` (not `@prisma/client`)
+2. Import from `@prisma/client`
 3. Build script automatically runs `prisma generate` before building
+4. `postinstall` hook ensures client is generated after npm install
 
 ### Database Connection
 Uses connection pooling with `pg` library and Prisma PostgreSQL adapter. The singleton pattern in `src/lib/prisma.ts` prevents creating multiple Prisma Client instances in development (hot reload).

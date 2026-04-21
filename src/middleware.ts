@@ -5,7 +5,16 @@ const isPublicRoute = createRouteMatcher([
   '/sign-up(.*)',
 ]);
 
+const isApiRoute = createRouteMatcher([
+  '/api(.*)',
+]);
+
 export default clerkMiddleware(async (auth, request) => {
+  // API routes handle their own auth - don't protect them in middleware
+  if (isApiRoute(request)) {
+    return;
+  }
+
   if (!isPublicRoute(request)) {
     await auth.protect();
   }
